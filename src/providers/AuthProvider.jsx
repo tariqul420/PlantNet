@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  console.log('current user -->', user?.email);
+  console.log('current user -->', user);
 
   const createUser = (email, password) => {
     setLoading(true)
@@ -57,24 +57,17 @@ const AuthProvider = ({ children }) => {
       if (currentUser?.email) {
         setUser(currentUser)
 
-        const userData = {
+        // Save user in mongodb
+        await axios.post(`${import.meta.env.VITE_API_URL}/users`, {
           name: currentUser?.displayName,
           image: currentUser?.photoURL,
           email: currentUser?.email,
-        }
-
-
-        // Save user in mongodb
-        await axios.post(`${import.meta.env.VITE_API_URL}/users`, userData)
+        })
 
         // Get JWT token
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/jwt`,
-          {
-            email: currentUser?.email,
-          },
-          { withCredentials: true }
-        )
+        await axios.post(`${import.meta.env.VITE_API_URL}/jwt`, {
+          email: currentUser?.email
+        }, { withCredentials: true })
       } else {
         setUser(currentUser)
         await axios.get(`${import.meta.env.VITE_API_URL}/logout`, {
